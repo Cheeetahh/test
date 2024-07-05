@@ -2,13 +2,13 @@ name: Package & Release
 
 # The workflow to build and release official Kong packages and images.
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   pull_request:
   push:
     branches:
-    - main
-    - next/*
-    - release/*
+      - main
+      - next/*
+      - release/*
   workflow_dispatch:
 
 jobs:
@@ -16,29 +16,32 @@ jobs:
     name: Job
     runs-on: ubuntu-latest
     steps:
-    - name: Step One
-      run: |
-        n="$(shuf -i 3-10 -n 1)"
+      - name: Step One
+        run: |
+          n="$(shuf -i 3-10 -n 1)"
 
-        echo "sleeping for ${n} seconds"
+          echo "sleeping for ${n} seconds"
 
-        sleep $n
+          sleep $n
+      - name: Sleep for 1 minute
+        run: |
+          echo "Sleeping for 1 minute"
+          sleep 60
+      - name: Randomly Fail
+        env:
+          VERBOSE: ${{ runner.debug }}
+        run: |
+          n="$(shuf -i 0-1 -n 1)"
 
-    - name: Randomly Fail
-      env:
-        VERBOSE: ${{ runner.debug }}
-      run: |
-        n="$(shuf -i 0-1 -n 1)"
+          if [ $n -eq 0 ]; then
+            echo "ding dong, all is well"
+          else
+            echo "trouble is afoot!"
+          fi
 
-        if [ $n -eq 0 ]; then
-          echo "ding dong, all is well"
-        else
-          echo "trouble is afoot!"
-        fi
-
-        if [ -n "$VERBOSE" ]; then
-          echo "succeeding because debug was enabled"
-          exit 0
-        else
-          exit $n
-        fi
+          if [ -n "$VERBOSE" ]; then
+            echo "succeeding because debug was enabled"
+            exit 0
+          else
+            exit $n
+          fi
