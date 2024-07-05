@@ -1,27 +1,44 @@
-name: Pull Request CI
+name: Package & Release
 
-on:
+# The workflow to build and release official Kong packages and images.
+
+on:  # yamllint disable-line rule:truthy
   pull_request:
+  push:
     branches:
-      - main
+    - main
+    - next/*
+    - release/*
+  workflow_dispatch:
 
 jobs:
-  test:
+  job:
+    name: Job
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Step One
+      run: |
+        n="$(shuf -i 3-10 -n 1)"
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
+        echo "sleeping for ${n} seconds"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+        sleep $n
 
-      - name: Run tests
-        run: |
-          pytest
+    - name: Randomly Fail
+      env:
+        VERBOSE: ${{ runner.debug }}
+      run: |
+        n="$(shuf -i 0-1 -n 1)"
+
+        if [ $n -eq 0 ]; then
+          echo "ding dong, all is well"
+        else
+          echo "trouble is afoot!"
+        fi
+
+        if [ -n "$VERBOSE" ]; then
+          echo "succeeding because debug was enabled"
+          exit 0
+        else
+          exit $n
+        fi
